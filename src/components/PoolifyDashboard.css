@@ -1,0 +1,339 @@
+/* Poolify Dashboard Styles */
+
+.poolify-dashboard {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+/* Header Styles */
+.dashboard-header {
+  text-align: center;
+  margin-bottom: 30px;
+  color: white;
+}
+
+.dashboard-header h1 {
+  font-size: 2.5rem;
+  margin: 0 0 10px 0;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.dashboard-header .tagline {
+  font-size: 1.1rem;
+  opacity: 0.9;
+  margin: 0;
+}
+
+/* Dashboard Content - Two Column Layout */
+.dashboard-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 25px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+@media (max-width: 1024px) {
+  .dashboard-content {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Panel Styles */
+.panel {
+  background: white;
+  border-radius: 16px;
+  padding: 25px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+}
+
+.panel h2 {
+  margin: 0 0 5px 0;
+  font-size: 1.5rem;
+  color: #333;
+}
+
+.panel-description {
+  color: #666;
+  margin: 0 0 20px 0;
+  font-size: 0.9rem;
+}
+
+/* Task Card Styles */
+.task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.task-card {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 15px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-left: 4px solid #ffc107;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.task-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.task-card.pending {
+  border-left-color: #ffc107;
+}
+
+.task-card.assigned {
+  border-left-color: #28a745;
+  background: #f0f9f2;
+}
+
+.task-info {
+  flex: 1;
+}
+
+.task-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.request-id {
+  font-weight: 700;
+  color: #667eea;
+  font-size: 1rem;
+}
+
+.client-name {
+  font-weight: 600;
+  color: #333;
+  background: #e9ecef;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+}
+
+.status-badge {
+  background: #28a745;
+  color: white;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.task-details {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.location {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.location .label {
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.location .value {
+  font-weight: 500;
+  color: #333;
+  font-size: 0.9rem;
+}
+
+.arrow {
+  color: #667eea;
+  font-weight: bold;
+}
+
+/* Assignment Button */
+.assign-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  white-space: nowrap;
+}
+
+.assign-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.assign-btn:active {
+  transform: scale(0.98);
+}
+
+/* Assigned Tasks Header */
+.assigned-header {
+  margin: 25px 0 15px 0;
+  color: #28a745;
+  font-size: 1.1rem;
+  border-top: 1px solid #e9ecef;
+  padding-top: 20px;
+}
+
+.assigned-list {
+  opacity: 0.85;
+}
+
+/* Delivery Boy Panel Styles */
+.delivery-boy-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.delivery-boy-card {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 15px 20px;
+  border-left: 4px solid #28a745;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.delivery-boy-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.delivery-boy-card.available {
+  border-left-color: #28a745;
+}
+
+.delivery-boy-card.busy {
+  border-left-color: #dc3545;
+  background: #fff5f5;
+}
+
+.db-main-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.db-name {
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: #333;
+}
+
+.availability-badge {
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.availability-badge.available {
+  background: #d4edda;
+  color: #155724;
+}
+
+.availability-badge.busy {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.db-details {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.db-location,
+.db-assignment {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+}
+
+.db-location .label,
+.db-assignment .label {
+  color: #666;
+}
+
+.db-location .value,
+.db-assignment .value {
+  font-weight: 500;
+  color: #333;
+}
+
+.db-assignment .value {
+  color: #667eea;
+  font-weight: 600;
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  background: #f0f9f2;
+  border-radius: 12px;
+  color: #28a745;
+}
+
+.empty-state p {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+/* Footer Styles */
+.dashboard-footer {
+  text-align: center;
+  margin-top: 30px;
+  color: white;
+  opacity: 0.9;
+}
+
+.dashboard-footer p {
+  margin: 5px 0;
+}
+
+.dashboard-footer .hint {
+  font-size: 0.85rem;
+  opacity: 0.8;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  .dashboard-header h1 {
+    font-size: 1.8rem;
+  }
+
+  .task-card {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 15px;
+  }
+
+  .assign-btn {
+    width: 100%;
+  }
+
+  .task-details {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .arrow {
+    transform: rotate(90deg);
+  }
+}
