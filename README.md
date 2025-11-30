@@ -9,7 +9,11 @@ A Proof-of-Concept (PoC) full-stack React application that intelligently assigns
   - Priority 1: Delivery boy at dropoff location (OPTIMAL - maximum fuel saving)
   - Priority 2: Delivery boy at pickup location (closest to start point)
 - **Real-time UI Updates**: Instant visual feedback when assignments are made
-- **Admin Dashboard**: Single-page dashboard to manage all tasks and delivery personnel
+- **Multi-View Application**:
+  - Landing Page with role selection
+  - Admin Dashboard for managing all tasks and delivery personnel
+  - Delivery Partner View for individual delivery boy management
+- **Task Lifecycle Management**: Track tasks from PENDING → ASSIGNED → IN_PROGRESS → COMPLETED
 
 ## 📋 Requirements
 
@@ -42,15 +46,33 @@ npm run dev
 poolify/
 ├── src/
 │   ├── components/
-│   │   ├── PoolifyDashboard.jsx    # Main dashboard component
-│   │   └── PoolifyDashboard.css    # Dashboard styles
-│   ├── App.jsx                      # Root component
-│   ├── main.jsx                     # Entry point
-│   └── index.css                    # Global styles
+│   │   ├── LandingPage.jsx           # Role selection page
+│   │   ├── LandingPage.css           # Landing page styles
+│   │   ├── PoolifyDashboard.jsx      # Admin dashboard component
+│   │   ├── PoolifyDashboard.css      # Dashboard styles
+│   │   ├── DeliveryPartnerView.jsx   # Partner view component
+│   │   └── DeliveryPartnerView.css   # Partner view styles
+│   ├── context/
+│   │   └── DataContext.jsx           # Shared state context
+│   ├── hooks/
+│   │   └── useData.js                # Custom hook for data access
+│   ├── App.jsx                       # Root component with routing
+│   ├── main.jsx                      # Entry point
+│   └── index.css                     # Global styles
 ├── index.html
 ├── package.json
 └── README.md
 ```
+
+## 🗺️ Routing
+
+The application uses React Router for navigation:
+
+| Route | Component | Description |
+|-------|-----------|-------------|
+| `/` | LandingPage | Role selection (Admin or Delivery Partner) |
+| `/admin` | PoolifyDashboard | Admin dashboard to manage tasks |
+| `/partner/:db_id` | DeliveryPartnerView | Individual delivery partner view |
 
 ## 🎯 How It Works
 
@@ -58,7 +80,7 @@ poolify/
 
 The application uses in-memory mock data for:
 - **Delivery Boys**: Each has an ID, name, current location (society), and availability status
-- **Tasks**: Each has a request ID, client name, pickup/dropoff locations, and status
+- **Tasks**: Each has a request ID, client name, pickup/dropoff locations, customer info, order value, and status
 
 ### Assignment Algorithm
 
@@ -69,6 +91,12 @@ When you click "Run Assignment" on a pending task:
 3. **Priority 2 (Good)**: If no Priority 1 match, find one at the pickup location
 4. **Assignment**: Update task status to "ASSIGNED" and delivery boy to "Busy"
 
+### Delivery Workflow
+
+1. **Admin assigns task** → Task status changes to "ASSIGNED"
+2. **Partner starts delivery** → Task status changes to "IN_PROGRESS"
+3. **Partner completes delivery** → Task status changes to "COMPLETED", partner becomes available
+
 ### Console Logging
 
 Open your browser's developer console (F12) to see detailed assignment logic:
@@ -78,21 +106,35 @@ Open your browser's developer console (F12) to see detailed assignment logic:
 
 ## 🎨 UI Components
 
-### Pending Tasks Panel
-- Lists all tasks with status "PENDING"
-- Shows request ID, client name, pickup and dropoff locations
-- "Run Assignment" button for each task
+### Landing Page
+- Modern welcome screen with Poolify branding
+- Role selection cards (Admin or Delivery Partner)
+- Delivery partner dropdown for login
 
-### Delivery Boy Status Panel
-- Shows all delivery personnel
+### Admin Dashboard (Pending Tasks Panel)
+- Lists all tasks with status "PENDING"
+- Shows request ID, client name, customer, pickup and dropoff locations, order value
+- "Run Assignment" button for each task
+- Active tasks section for assigned/in-progress tasks
+
+### Admin Dashboard (Delivery Boy Status Panel)
+- Shows all delivery personnel as cards
 - Color-coded availability (green = Available, red = Busy)
 - Displays current location and assigned task (if any)
+- Clickable cards to view partner details
+
+### Delivery Partner View
+- Welcome header with partner info and status
+- Active task card with full details (customer, locations, order value)
+- Action buttons: "Start Delivery" and "Complete Delivery"
+- Completed deliveries history section
 
 ## 🔧 Built With
 
 - [React](https://react.dev/) - Frontend library
+- [React Router](https://reactrouter.com/) - Client-side routing
 - [Vite](https://vitejs.dev/) - Build tool
-- CSS3 - Styling
+- CSS3 - Modern styling with cards, animations, and responsive design
 
 ## 📝 Notes
 
