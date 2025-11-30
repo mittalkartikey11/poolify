@@ -5,16 +5,12 @@ import './LandingPage.css';
 
 function LandingPage() {
   const navigate = useNavigate();
-  const { deliveryBoys } = useData();
+  const { deliveryBoys, resetData } = useData();
   const [selectedDeliveryBoy, setSelectedDeliveryBoy] = useState('');
-  const [showDeliverySelect, setShowDeliverySelect] = useState(false);
+  const [notification, setNotification] = useState(null);
 
   const handleAdminClick = () => {
     navigate('/admin');
-  };
-
-  const handleDeliveryPartnerClick = () => {
-    setShowDeliverySelect(true);
   };
 
   const handleDeliveryBoySelect = (e) => {
@@ -27,8 +23,21 @@ function LandingPage() {
     }
   };
 
+  const handleReset = () => {
+    const result = resetData();
+    setNotification(result);
+    setTimeout(() => setNotification(null), 3000);
+  };
+
   return (
     <div className="landing-page">
+      {/* Notification */}
+      {notification && (
+        <div className={`notification ${notification.success ? 'success' : 'error'}`}>
+          {notification.success ? '✅' : '❌'} {notification.message}
+        </div>
+      )}
+
       <div className="landing-container">
         {/* Header/Branding */}
         <header className="landing-header">
@@ -36,7 +45,7 @@ function LandingPage() {
             <span className="logo-icon">🚚</span>
             <h1>Poolify</h1>
           </div>
-          <p className="tagline">Intelligent Delivery Assignment System</p>
+          <p className="tagline">Smart Delivery Assignment Platform</p>
         </header>
 
         {/* Role Selection Cards */}
@@ -48,8 +57,10 @@ function LandingPage() {
             <div className="role-card admin-card" onClick={handleAdminClick}>
               <div className="card-icon">🛠️</div>
               <h3>Admin Dashboard</h3>
-              <p>Manage delivery assignments, view all tasks and delivery personnel status</p>
-              <button className="role-btn admin-btn">Enter as Admin</button>
+              <p>Manage delivery assignments, view all tasks and delivery personnel status in real-time</p>
+              <button className="role-btn admin-btn">
+                <span>📊</span> Enter Admin Dashboard
+              </button>
             </div>
 
             {/* Delivery Partner Card */}
@@ -58,44 +69,46 @@ function LandingPage() {
               <h3>Delivery Partner</h3>
               <p>View your assigned tasks, start deliveries, and update delivery status</p>
               
-              {!showDeliverySelect ? (
-                <button 
-                  className="role-btn partner-btn" 
-                  onClick={handleDeliveryPartnerClick}
-                >
-                  Login as Partner
-                </button>
-              ) : (
-                <div className="delivery-select-container">
+              <div className="delivery-select-container">
+                <div className="select-wrapper">
+                  <span className="select-icon">👤</span>
                   <select 
                     value={selectedDeliveryBoy} 
                     onChange={handleDeliveryBoySelect}
                     className="delivery-select"
                   >
-                    <option value="">Select your name...</option>
+                    <option value="">Choose your profile...</option>
                     {deliveryBoys.map(db => (
                       <option key={db.db_id} value={db.db_id}>
-                        {db.name} ({db.current_society})
+                        {db.name} • {db.current_location}
                       </option>
                     ))}
                   </select>
-                  <button 
-                    className="role-btn login-btn"
-                    onClick={handleDeliveryLogin}
-                    disabled={!selectedDeliveryBoy}
-                  >
-                    Continue →
-                  </button>
                 </div>
-              )}
+                <button 
+                  className="role-btn login-btn"
+                  onClick={handleDeliveryLogin}
+                  disabled={!selectedDeliveryBoy}
+                >
+                  <span>🚀</span> Continue as Partner
+                </button>
+              </div>
             </div>
+          </div>
+
+          {/* Reset Button */}
+          <div className="reset-section">
+            <button className="reset-btn" onClick={handleReset}>
+              <span>🔄</span> Reset LocalStorage
+            </button>
+            <p className="reset-hint">Restore all data to initial state</p>
           </div>
         </div>
 
         {/* Footer */}
         <footer className="landing-footer">
-          <p>💡 Open browser console (F12) to see assignment logic details</p>
-          <p className="version">Poolify PoC v1.0</p>
+          <p>💡 Data persists across page refreshes using LocalStorage</p>
+          <p className="version">Poolify v2.0 - Warehouse-Based Delivery System</p>
         </footer>
       </div>
     </div>
