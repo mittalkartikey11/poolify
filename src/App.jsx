@@ -11,6 +11,7 @@ function App() {
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/admin" element={<PoolifyDashboard />} />
+          <Route path="/partner" element={<DeliveryPartnerView />} />
           <Route path="/partner/:db_id" element={<DeliveryPartnerView />} />
         </Routes>
       </Router>

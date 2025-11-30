@@ -3,17 +3,18 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useData } from '../hooks/useData';
 import './PoolifyDashboard.css';
 
-// Client brand colors
-const clientColors = {
-  'Blinkit': { bg: '#ffe900', text: '#1a1a1a', border: '#ffd000' },
-  'Swiggy': { bg: '#fc8019', text: '#ffffff', border: '#e07000' },
-  'Zomato': { bg: '#e23744', text: '#ffffff', border: '#cb2f3c' },
-  'Dunzo': { bg: '#00d290', text: '#ffffff', border: '#00b87d' }
+// Client brand colors and icons
+const clientConfig = {
+  'Blinkit': { bg: '#ffe900', text: '#1a1a1a', icon: '📦' },
+  'Zepto': { bg: '#5c2d91', text: '#ffffff', icon: '⚡' },
+  'Swiggy Instamart': { bg: '#fc8019', text: '#ffffff', icon: '🛒' },
+  'Zomato': { bg: '#e23744', text: '#ffffff', icon: '🍔' },
+  'Dunzo': { bg: '#00d290', text: '#ffffff', icon: '📬' }
 };
 
 function PoolifyDashboard() {
   const navigate = useNavigate();
-  const { deliveryBoys, tasks, assignBestDeliveryBoy } = useData();
+  const { deliveryBoys, tasks, assignBestDeliveryBoy, resetData } = useData();
   const [notification, setNotification] = useState(null);
 
   const handleAssignment = (task) => {
@@ -22,9 +23,17 @@ function PoolifyDashboard() {
     setTimeout(() => setNotification(null), 4000);
   };
 
-  // Filter tasks by status
+  const handleReset = () => {
+    const result = resetData();
+    setNotification(result);
+    setTimeout(() => setNotification(null), 3000);
+  };
+
+  // Calculate stats
+  const totalPersonnel = deliveryBoys.length;
+  const availablePersonnel = deliveryBoys.filter(db => db.is_available).length;
   const pendingTasks = tasks.filter(task => task.status === 'PENDING');
-  const assignedTasks = tasks.filter(task => task.status === 'ASSIGNED' || task.status === 'IN_PROGRESS');
+  const activeDeliveries = tasks.filter(task => task.status === 'ASSIGNED' || task.status === 'IN_PROGRESS');
 
   return (
     <div className="poolify-dashboard">
@@ -35,119 +44,172 @@ function PoolifyDashboard() {
         </div>
       )}
 
+      {/* Top Bar */}
       <header className="dashboard-header">
-        <div className="header-nav">
-          <button className="back-btn" onClick={() => navigate('/')}>
-            ← Back to Home
+        <div className="header-left">
+          <div className="brand">
+            <span className="brand-icon">🚚</span>
+            <div className="brand-text">
+              <h1>Poolify Admin Dashboard</h1>
+              <p className="subtitle">Smart Delivery Assignment Platform</p>
+            </div>
+          </div>
+        </div>
+        <div className="header-right">
+          <button className="header-btn partner-btn" onClick={() => navigate('/')}>
+            <span>🏍️</span> Partner View
+          </button>
+          <button className="header-btn reset-btn" onClick={handleReset}>
+            <span>🔄</span> Reset Data
           </button>
         </div>
-        <h1>🚚 Poolify Admin Dashboard</h1>
-        <p className="tagline">Intelligent Delivery Assignment System</p>
       </header>
 
+      {/* Stats Cards Row */}
+      <div className="stats-row">
+        <div className="stat-card">
+          <div className="stat-icon personnel">👥</div>
+          <div className="stat-info">
+            <span className="stat-value">{totalPersonnel}</span>
+            <span className="stat-label">Total Personnel</span>
+          </div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-icon available">✅</div>
+          <div className="stat-info">
+            <span className="stat-value">{availablePersonnel}/{totalPersonnel}</span>
+            <span className="stat-label">Available</span>
+          </div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-icon pending">📋</div>
+          <div className="stat-info">
+            <span className="stat-value">{pendingTasks.length}</span>
+            <span className="stat-label">Pending Tasks</span>
+          </div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-icon active">🚀</div>
+          <div className="stat-info">
+            <span className="stat-value">{activeDeliveries.length}</span>
+            <span className="stat-label">Active Deliveries</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content - Two Column Layout */}
       <div className="dashboard-content">
-        {/* Pending Tasks Panel */}
+        {/* Left Column: Pending Tasks */}
         <section className="panel pending-tasks-panel">
-          <h2>📦 Pending Tasks</h2>
-          <p className="panel-description">Click &quot;Run Assignment&quot; to assign a delivery boy</p>
+          <div className="panel-header">
+            <h2>📋 Pending Tasks</h2>
+            <span className="count-badge">{pendingTasks.length} pending</span>
+          </div>
           
           {pendingTasks.length === 0 ? (
             <div className="empty-state">
-              <p>✨ No pending tasks! All tasks have been assigned.</p>
+              <div className="empty-icon">✨</div>
+              <p>No pending tasks! All tasks have been assigned.</p>
             </div>
           ) : (
             <div className="task-list">
               {pendingTasks.map(task => {
-                const clientStyle = clientColors[task.client_name] || { bg: '#e9ecef', text: '#333', border: '#ccc' };
+                const clientStyle = clientConfig[task.client_name] || { bg: '#e9ecef', text: '#333', icon: '📦' };
                 return (
-                  <div 
-                    key={task.request_id} 
-                    className="task-card pending"
-                    style={{ borderLeftColor: clientStyle.border }}
-                  >
-                    <span className="request-id-badge">#{task.request_id}</span>
-                    <div className="task-info">
-                      <div className="task-header">
+                  <div key={task.request_id} className="task-card">
+                    <div className="task-top">
+                      <div className="task-client">
                         <span 
                           className="client-badge"
                           style={{ background: clientStyle.bg, color: clientStyle.text }}
                         >
-                          {task.client_name}
+                          {clientStyle.icon} {task.client_name}
                         </span>
-                        <span className="customer-name">👤 {task.customer_name}</span>
+                        <span className="request-id">{task.request_id}</span>
                       </div>
-                      <div className="task-details">
-                        <div className="location">
-                          <span className="label">📦 Pickup:</span>
-                          <span className="value">{task.pickup_society}</span>
-                        </div>
-                        <span className="arrow">→</span>
-                        <div className="location">
-                          <span className="label">📍 Dropoff:</span>
-                          <span className="value">{task.dropoff_society}</span>
-                        </div>
+                      <span className="status-badge pending">PENDING</span>
+                    </div>
+                    
+                    <div className="task-route">
+                      <div className="route-point">
+                        <span className="route-icon pickup">📦</span>
+                        <span className="route-text">{task.pickup_location}</span>
                       </div>
-                      <div className="order-value">
-                        <span className="rupee">₹{task.order_value}</span>
+                      <span className="route-arrow">→</span>
+                      <div className="route-point">
+                        <span className="route-icon dropoff">🏠</span>
+                        <span className="route-text">{task.dropoff_location}</span>
                       </div>
                     </div>
-                    <button 
-                      className="assign-btn"
-                      onClick={() => handleAssignment(task)}
-                    >
-                      Run Assignment
-                    </button>
+
+                    <div className="task-bottom">
+                      <div className="task-meta">
+                        <span className="customer">👤 {task.customer_name}</span>
+                        <span className="order-value">₹{task.order_value}</span>
+                      </div>
+                      <button 
+                        className="assign-btn"
+                        onClick={() => handleAssignment(task)}
+                      >
+                        Run Assignment
+                      </button>
+                    </div>
                   </div>
                 );
               })}
             </div>
           )}
 
-          {/* Show assigned tasks */}
-          {assignedTasks.length > 0 && (
+          {/* Active Tasks */}
+          {activeDeliveries.length > 0 && (
             <>
-              <h3 className="assigned-header">✅ Active Tasks</h3>
-              <div className="task-list assigned-list">
-                {assignedTasks.map(task => {
-                  const clientStyle = clientColors[task.client_name] || { bg: '#e9ecef', text: '#333', border: '#28a745' };
+              <div className="panel-header section-divider">
+                <h3>✅ Active Tasks</h3>
+                <span className="count-badge success">{activeDeliveries.length} active</span>
+              </div>
+              <div className="task-list">
+                {activeDeliveries.map(task => {
+                  const clientStyle = clientConfig[task.client_name] || { bg: '#e9ecef', text: '#333', icon: '📦' };
                   const assignedDb = deliveryBoys.find(db => db.db_id === task.assigned_to);
                   return (
-                    <div 
-                      key={task.request_id} 
-                      className="task-card assigned"
-                      style={{ borderLeftColor: '#28a745' }}
-                    >
-                      <span className="request-id-badge">#{task.request_id}</span>
-                      <div className="task-info">
-                        <div className="task-header">
+                    <div key={task.request_id} className="task-card active">
+                      <div className="task-top">
+                        <div className="task-client">
                           <span 
                             className="client-badge"
                             style={{ background: clientStyle.bg, color: clientStyle.text }}
                           >
-                            {task.client_name}
+                            {clientStyle.icon} {task.client_name}
                           </span>
-                          <span className={`status-badge ${task.status.toLowerCase()}`}>
-                            {task.status === 'IN_PROGRESS' ? '🚀 IN PROGRESS' : '✅ ASSIGNED'}
-                          </span>
+                          <span className="request-id">{task.request_id}</span>
                         </div>
-                        <div className="task-details">
-                          <div className="location">
-                            <span className="label">📦 Pickup:</span>
-                            <span className="value">{task.pickup_society}</span>
-                          </div>
-                          <span className="arrow">→</span>
-                          <div className="location">
-                            <span className="label">📍 Dropoff:</span>
-                            <span className="value">{task.dropoff_society}</span>
-                          </div>
-                        </div>
-                        {assignedDb && (
-                          <div className="assigned-to-info">
-                            <span className="label">🏍️ Assigned to:</span>
-                            <span className="value">{assignedDb.name}</span>
-                          </div>
-                        )}
+                        <span className={`status-badge ${task.status.toLowerCase().replace('_', '-')}`}>
+                          {task.status === 'IN_PROGRESS' ? '🚀 IN PROGRESS' : '✅ ASSIGNED'}
+                        </span>
                       </div>
+                      
+                      <div className="task-route">
+                        <div className="route-point">
+                          <span className="route-icon pickup">📦</span>
+                          <span className="route-text">{task.pickup_location}</span>
+                        </div>
+                        <span className="route-arrow">→</span>
+                        <div className="route-point">
+                          <span className="route-icon dropoff">🏠</span>
+                          <span className="route-text">{task.dropoff_location}</span>
+                        </div>
+                      </div>
+
+                      {assignedDb && (
+                        <div className="assigned-info">
+                          <img 
+                            src={assignedDb.avatar} 
+                            alt={assignedDb.name}
+                            className="assigned-avatar"
+                          />
+                          <span className="assigned-name">Assigned to: {assignedDb.name}</span>
+                        </div>
+                      )}
                     </div>
                   );
                 })}
@@ -156,10 +218,12 @@ function PoolifyDashboard() {
           )}
         </section>
 
-        {/* Delivery Boy Status Panel */}
+        {/* Right Column: Delivery Personnel */}
         <section className="panel delivery-boys-panel">
-          <h2>🏍️ Delivery Personnel</h2>
-          <p className="panel-description">Real-time status of all delivery personnel</p>
+          <div className="panel-header">
+            <h2>👥 Delivery Personnel</h2>
+            <span className="count-badge">{availablePersonnel}/{totalPersonnel} available</span>
+          </div>
           
           <div className="delivery-boy-list">
             {deliveryBoys.map(db => (
@@ -168,37 +232,40 @@ function PoolifyDashboard() {
                 to={`/partner/${db.db_id}`}
                 className={`delivery-boy-card ${db.is_available ? 'available' : 'busy'}`}
               >
-                <div className="db-avatar">👤</div>
+                <img 
+                  src={db.avatar} 
+                  alt={db.name}
+                  className="db-avatar"
+                />
                 <div className="db-info">
-                  <div className="db-main-info">
-                    <div className="db-name">{db.name}</div>
-                    <span className={`availability-badge ${db.is_available ? 'available' : 'busy'}`}>
-                      {db.is_available ? '✅ Available' : '🔴 Busy'}
-                    </span>
+                  <div className="db-main">
+                    <span className="db-name">{db.name}</span>
+                    <span className="db-id">DB{String(db.db_id).padStart(3, '0')}</span>
                   </div>
-                  <div className="db-details">
-                    <div className="db-location">
-                      <span className="label">📍</span>
-                      <span className="value">{db.current_society}</span>
+                  <div className="db-location">
+                    <span className="location-icon">📍</span>
+                    <span className="location-text">{db.current_location}</span>
+                  </div>
+                  {db.assigned_request_id && (
+                    <div className="db-task">
+                      <span className="task-icon">📋</span>
+                      <span className="task-text">{db.assigned_request_id}</span>
                     </div>
-                    {db.assigned_request_id && (
-                      <div className="db-assignment">
-                        <span className="label">📋 Task:</span>
-                        <span className="value">#{db.assigned_request_id}</span>
-                      </div>
-                    )}
-                  </div>
+                  )}
                 </div>
-                <span className="view-arrow">→</span>
+                <span className={`availability-badge ${db.is_available ? 'available' : 'busy'}`}>
+                  {db.is_available ? 'AVAILABLE' : 'BUSY'}
+                </span>
               </Link>
             ))}
           </div>
         </section>
       </div>
 
+      {/* Footer */}
       <footer className="dashboard-footer">
-        <p>Poolify PoC - Intelligent Delivery Assignment System</p>
-        <p className="hint">💡 Open browser console to see assignment logic details</p>
+        <p>💡 Open browser console (F12) to see assignment logic details</p>
+        <p className="copyright">Poolify v2.0 - Warehouse-Based Delivery System</p>
       </footer>
     </div>
   );

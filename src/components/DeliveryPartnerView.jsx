@@ -3,27 +3,20 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useData } from '../hooks/useData';
 import './DeliveryPartnerView.css';
 
-// Client brand colors
-const clientColors = {
-  'Blinkit': { bg: '#ffe900', text: '#1a1a1a', border: '#ffd000' },
-  'Swiggy': { bg: '#fc8019', text: '#ffffff', border: '#e07000' },
-  'Zomato': { bg: '#e23744', text: '#ffffff', border: '#cb2f3c' },
-  'Dunzo': { bg: '#00d290', text: '#ffffff', border: '#00b87d' }
-};
-
-// Mock phone numbers for customers
-const mockPhoneNumbers = {
-  'Rohit Sharma': '+91 98765 43210',
-  'Anjali Mehta': '+91 87654 32109',
-  'Karan Singh': '+91 76543 21098',
-  'Neha Kapoor': '+91 65432 10987',
-  'Sanjay Gupta': '+91 54321 09876'
+// Client brand colors and icons
+const clientConfig = {
+  'Blinkit': { bg: '#ffe900', text: '#1a1a1a', icon: '📦' },
+  'Zepto': { bg: '#5c2d91', text: '#ffffff', icon: '⚡' },
+  'Swiggy Instamart': { bg: '#fc8019', text: '#ffffff', icon: '🛒' },
+  'Zomato': { bg: '#e23744', text: '#ffffff', icon: '🍔' },
+  'Dunzo': { bg: '#00d290', text: '#ffffff', icon: '📬' }
 };
 
 function DeliveryPartnerView() {
   const { db_id } = useParams();
   const navigate = useNavigate();
   const { 
+    deliveryBoys,
     getDeliveryBoyById, 
     getTasksForDeliveryBoy, 
     startDelivery, 
@@ -32,27 +25,20 @@ function DeliveryPartnerView() {
   } = useData();
 
   const [notification, setNotification] = useState(null);
+  const [selectedProfile, setSelectedProfile] = useState(db_id || '');
 
-  const deliveryBoy = getDeliveryBoyById(db_id);
-  const assignedTasks = getTasksForDeliveryBoy(db_id);
+  const deliveryBoy = db_id ? getDeliveryBoyById(db_id) : null;
+  const assignedTasks = db_id ? getTasksForDeliveryBoy(db_id) : [];
   const activeTask = assignedTasks.find(t => t.status === 'ASSIGNED' || t.status === 'IN_PROGRESS');
-  const completedTasks = tasks.filter(t => t.status === 'COMPLETED' && t.assigned_to === parseInt(db_id));
+  const completedTasks = db_id ? tasks.filter(t => t.status === 'COMPLETED' && t.assigned_to === parseInt(db_id)) : [];
 
-  if (!deliveryBoy) {
-    return (
-      <div className="partner-view">
-        <div className="partner-container">
-          <div className="error-state">
-            <h2>❌ Delivery Partner Not Found</h2>
-            <p>The requested delivery partner does not exist.</p>
-            <button className="back-btn" onClick={() => navigate('/')}>
-              ← Back to Home
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const handleProfileChange = (e) => {
+    const newId = e.target.value;
+    setSelectedProfile(newId);
+    if (newId) {
+      navigate(`/partner/${newId}`);
+    }
+  };
 
   const handleStartDelivery = (taskId) => {
     const result = startDelivery(taskId);
@@ -66,6 +52,70 @@ function DeliveryPartnerView() {
     setTimeout(() => setNotification(null), 3000);
   };
 
+  // Show profile selection if no db_id or invalid
+  if (!deliveryBoy) {
+    return (
+      <div className="partner-view">
+        {/* Notification */}
+        {notification && (
+          <div className={`notification ${notification.success ? 'success' : 'error'}`}>
+            {notification.success ? '✅' : '❌'} {notification.message}
+          </div>
+        )}
+
+        <div className="partner-container">
+          {/* Header */}
+          <header className="partner-header-bar">
+            <div className="header-brand">
+              <span className="brand-icon">🚚</span>
+              <div className="brand-info">
+                <h1>Delivery Partner</h1>
+                <p>View and manage your deliveries</p>
+              </div>
+            </div>
+            <div className="header-actions">
+              <button className="header-btn admin-btn" onClick={() => navigate('/admin')}>
+                <span>📊</span> Admin View
+              </button>
+            </div>
+          </header>
+
+          {/* Profile Selection Card */}
+          <div className="profile-selection-card">
+            <div className="selection-icon">👤</div>
+            <h2>Select Your Profile</h2>
+            <div className="select-wrapper">
+              <select 
+                value={selectedProfile}
+                onChange={handleProfileChange}
+                className="profile-select"
+              >
+                <option value="">Choose your name to view assignments...</option>
+                {deliveryBoys.map(db => (
+                  <option key={db.db_id} value={db.db_id}>
+                    {db.name} • {db.current_location}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* Welcome State */}
+          <div className="welcome-state">
+            <div className="welcome-icon">👤</div>
+            <h2>Welcome, Delivery Partner!</h2>
+            <p>Please select your profile from the dropdown above to view your assigned deliveries and manage your tasks.</p>
+          </div>
+
+          {/* Footer */}
+          <footer className="partner-footer">
+            <p>Poolify - Delivery Partner Portal</p>
+          </footer>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="partner-view">
       {/* Notification */}
@@ -77,153 +127,181 @@ function DeliveryPartnerView() {
 
       <div className="partner-container">
         {/* Header */}
-        <header className="partner-header">
-          <button className="back-btn" onClick={() => navigate('/')}>
-            ← Back to Home
-          </button>
-          
-          <div className="welcome-section">
-            <div className="avatar-large">👤</div>
-            <div className="welcome-text">
-              <h1>Welcome, {deliveryBoy.name}!</h1>
-              <div className="status-info">
-                <span className="location-badge">
-                  📍 {deliveryBoy.current_society}
+        <header className="partner-header-bar">
+          <div className="header-brand">
+            <span className="brand-icon">🚚</span>
+            <div className="brand-info">
+              <h1>Delivery Partner</h1>
+              <p>View and manage your deliveries</p>
+            </div>
+          </div>
+          <div className="header-actions">
+            <button className="header-btn admin-btn" onClick={() => navigate('/admin')}>
+              <span>📊</span> Admin View
+            </button>
+          </div>
+        </header>
+
+        {/* Profile Card */}
+        <div className="profile-card">
+          <div className="profile-left">
+            <img 
+              src={deliveryBoy.avatar} 
+              alt={deliveryBoy.name}
+              className="profile-avatar"
+            />
+            <div className="profile-info">
+              <h2>Welcome, {deliveryBoy.name}!</h2>
+              <div className="profile-details">
+                <span className="detail-badge location">
+                  <span>📍</span> {deliveryBoy.current_location}
                 </span>
-                <span className={`status-badge ${deliveryBoy.is_available ? 'available' : 'busy'}`}>
+                <span className={`detail-badge status ${deliveryBoy.is_available ? 'available' : 'busy'}`}>
                   {deliveryBoy.is_available ? '✅ Available' : '🔴 Busy'}
                 </span>
               </div>
             </div>
           </div>
-        </header>
+          <div className="profile-right">
+            <div className="select-wrapper small">
+              <select 
+                value={selectedProfile}
+                onChange={handleProfileChange}
+                className="profile-select small"
+              >
+                {deliveryBoys.map(db => (
+                  <option key={db.db_id} value={db.db_id}>
+                    {db.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </div>
 
         {/* Main Content */}
         <main className="partner-content">
-          {/* Active Task Section */}
-          <section className="section active-task-section">
-            <h2>📦 My Active Delivery</h2>
-            
-            {activeTask ? (
-              <div className="active-task-card">
-                <div className="task-badge-container">
-                  <span className="task-id-badge">Order #{activeTask.request_id}</span>
+          {/* Active Delivery Section */}
+          {activeTask ? (
+            <section className="section active-delivery-section">
+              <div className="section-header">
+                <h2>📦 Active Delivery</h2>
+                <span className={`status-pill ${activeTask.status.toLowerCase().replace('_', '-')}`}>
+                  {activeTask.status === 'ASSIGNED' && '📋 Assigned'}
+                  {activeTask.status === 'IN_PROGRESS' && '🚀 In Progress'}
+                </span>
+              </div>
+
+              <div className="delivery-card">
+                <div className="delivery-header">
                   <span 
                     className="client-badge"
                     style={{ 
-                      background: clientColors[activeTask.client_name]?.bg || '#e9ecef',
-                      color: clientColors[activeTask.client_name]?.text || '#333'
+                      background: clientConfig[activeTask.client_name]?.bg || '#e9ecef',
+                      color: clientConfig[activeTask.client_name]?.text || '#333'
                     }}
                   >
-                    {activeTask.client_name}
+                    {clientConfig[activeTask.client_name]?.icon || '📦'} {activeTask.client_name}
                   </span>
+                  <span className="order-id">{activeTask.request_id}</span>
                 </div>
 
-                <div className="customer-info">
-                  <h3>👤 Customer Details</h3>
-                  <div className="info-row">
-                    <span className="label">Name:</span>
-                    <span className="value">{activeTask.customer_name}</span>
-                  </div>
-                  <div className="info-row">
-                    <span className="label">Phone:</span>
-                    <span className="value phone">{mockPhoneNumbers[activeTask.customer_name] || '+91 99999 99999'}</span>
+                <div className="delivery-customer">
+                  <div className="customer-icon">👤</div>
+                  <div className="customer-info">
+                    <span className="customer-label">Customer</span>
+                    <span className="customer-name">{activeTask.customer_name}</span>
                   </div>
                 </div>
 
-                <div className="route-info">
-                  <div className="route-point pickup">
-                    <div className="route-icon">📦</div>
-                    <div className="route-details">
+                <div className="delivery-route">
+                  <div className="route-step pickup">
+                    <div className="route-marker">📦</div>
+                    <div className="route-content">
                       <span className="route-label">Pickup Location</span>
-                      <span className="route-value">{activeTask.pickup_society}</span>
+                      <span className="route-value">{activeTask.pickup_location}</span>
                     </div>
                   </div>
                   <div className="route-connector">
                     <div className="connector-line"></div>
                     <span className="connector-arrow">↓</span>
                   </div>
-                  <div className="route-point dropoff">
-                    <div className="route-icon">📍</div>
-                    <div className="route-details">
-                      <span className="route-label">Dropoff Location</span>
-                      <span className="route-value">{activeTask.dropoff_society}</span>
+                  <div className="route-step dropoff">
+                    <div className="route-marker">🏠</div>
+                    <div className="route-content">
+                      <span className="route-label">Delivery Location</span>
+                      <span className="route-value">{activeTask.dropoff_location}</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="order-info">
-                  <div className="order-value">
-                    <span className="label">Order Value:</span>
-                    <span className="value">₹{activeTask.order_value}</span>
-                  </div>
-                  <div className="task-status">
-                    <span className="label">Status:</span>
-                    <span className={`status-pill ${activeTask.status.toLowerCase().replace('_', '-')}`}>
-                      {activeTask.status === 'ASSIGNED' && '📋 Assigned'}
-                      {activeTask.status === 'IN_PROGRESS' && '🚀 In Progress'}
-                    </span>
-                  </div>
+                <div className="delivery-value">
+                  <span className="value-label">Order Value</span>
+                  <span className="value-amount">₹{activeTask.order_value}</span>
                 </div>
 
-                <div className="action-buttons">
+                <div className="delivery-actions">
                   {activeTask.status === 'ASSIGNED' && (
                     <button 
-                      className="action-btn start-btn"
+                      className="action-btn start"
                       onClick={() => handleStartDelivery(activeTask.request_id)}
                     >
-                      🚀 Start Delivery
+                      <span>🚀</span> Start Delivery
                     </button>
                   )}
                   {activeTask.status === 'IN_PROGRESS' && (
                     <button 
-                      className="action-btn complete-btn"
+                      className="action-btn complete"
                       onClick={() => handleCompleteDelivery(activeTask.request_id)}
                     >
-                      ✅ Complete Delivery
+                      <span>✅</span> Complete Delivery
                     </button>
                   )}
                 </div>
               </div>
-            ) : (
-              <div className="empty-state">
-                <div className="empty-icon">🎉</div>
-                <h3>No Active Deliveries</h3>
-                <p>You&apos;re available for new tasks! Check with admin for new assignments.</p>
-                <div className="availability-status">
-                  <span className={`status-indicator ${deliveryBoy.is_available ? 'available' : 'busy'}`}></span>
-                  <span>Status: {deliveryBoy.is_available ? 'Available' : 'Busy'}</span>
+            </section>
+          ) : (
+            <section className="section no-delivery-section">
+              <div className="no-delivery-content">
+                <div className="no-delivery-icon">🎉</div>
+                <h2>No Active Deliveries</h2>
+                <p>You&apos;re available for new tasks!</p>
+                <div className="availability-indicator">
+                  <span className="indicator-dot available"></span>
+                  <span>Status: Available</span>
                 </div>
               </div>
-            )}
-          </section>
+            </section>
+          )}
 
-          {/* Completed Tasks Section */}
+          {/* Completed Deliveries */}
           {completedTasks.length > 0 && (
             <section className="section completed-section">
-              <h2>✅ Completed Deliveries</h2>
+              <div className="section-header">
+                <h2>✅ Completed Deliveries</h2>
+                <span className="count-badge">{completedTasks.length} completed</span>
+              </div>
               <div className="completed-list">
-                {completedTasks.map(task => (
-                  <div key={task.request_id} className="completed-card">
-                    <div className="completed-header">
-                      <span className="task-id">#{task.request_id}</span>
-                      <span 
-                        className="client-tag"
-                        style={{ 
-                          background: clientColors[task.client_name]?.bg || '#e9ecef',
-                          color: clientColors[task.client_name]?.text || '#333'
-                        }}
-                      >
-                        {task.client_name}
-                      </span>
-                      <span className="completed-badge">✅ Completed</span>
+                {completedTasks.map(task => {
+                  const clientStyle = clientConfig[task.client_name] || { bg: '#e9ecef', text: '#333', icon: '📦' };
+                  return (
+                    <div key={task.request_id} className="completed-card">
+                      <div className="completed-top">
+                        <span 
+                          className="client-tag"
+                          style={{ background: clientStyle.bg, color: clientStyle.text }}
+                        >
+                          {clientStyle.icon} {task.client_name}
+                        </span>
+                        <span className="completed-badge">✅ Completed</span>
+                      </div>
+                      <div className="completed-route">
+                        {task.pickup_location} → {task.dropoff_location}
+                      </div>
+                      <div className="completed-value">₹{task.order_value}</div>
                     </div>
-                    <div className="completed-details">
-                      <span>{task.pickup_society} → {task.dropoff_society}</span>
-                      <span className="completed-value">₹{task.order_value}</span>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </section>
           )}
@@ -231,7 +309,7 @@ function DeliveryPartnerView() {
 
         {/* Footer */}
         <footer className="partner-footer">
-          <p>Poolify Delivery Partner App</p>
+          <p>Poolify - Delivery Partner Portal</p>
           <p className="hint">💡 Complete deliveries to become available for new tasks</p>
         </footer>
       </div>
