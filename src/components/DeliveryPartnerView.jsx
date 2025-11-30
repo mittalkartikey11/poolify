@@ -12,6 +12,12 @@ const clientConfig = {
   'Dunzo': { bg: '#00d290', text: '#ffffff', icon: '📬' }
 };
 
+// Default client style fallback
+const defaultClientStyle = { bg: '#e9ecef', text: '#333', icon: '📦' };
+
+// Helper function to get client style
+const getClientStyle = (clientName) => clientConfig[clientName] || defaultClientStyle;
+
 function DeliveryPartnerView() {
   const { db_id } = useParams();
   const navigate = useNavigate();
@@ -197,11 +203,11 @@ function DeliveryPartnerView() {
                   <span 
                     className="client-badge"
                     style={{ 
-                      background: clientConfig[activeTask.client_name]?.bg || '#e9ecef',
-                      color: clientConfig[activeTask.client_name]?.text || '#333'
+                      background: getClientStyle(activeTask.client_name).bg,
+                      color: getClientStyle(activeTask.client_name).text
                     }}
                   >
-                    {clientConfig[activeTask.client_name]?.icon || '📦'} {activeTask.client_name}
+                    {getClientStyle(activeTask.client_name).icon} {activeTask.client_name}
                   </span>
                   <span className="order-id">{activeTask.request_id}</span>
                 </div>
@@ -283,7 +289,7 @@ function DeliveryPartnerView() {
               </div>
               <div className="completed-list">
                 {completedTasks.map(task => {
-                  const clientStyle = clientConfig[task.client_name] || { bg: '#e9ecef', text: '#333', icon: '📦' };
+                  const clientStyle = getClientStyle(task.client_name);
                   return (
                     <div key={task.request_id} className="completed-card">
                       <div className="completed-top">

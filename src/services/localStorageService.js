@@ -258,18 +258,26 @@ export const startDelivery = (taskId) => {
  * Complete a delivery - changes task status to COMPLETED and makes delivery boy available
  */
 export const completeDelivery = (taskId, dbId) => {
-  const task = getTaskById(taskId);
-  
-  updateTask(taskId, { status: 'COMPLETED' });
-  
-  updateDeliveryBoy(dbId, {
-    is_available: true,
-    assigned_request_id: null,
-    current_location: task?.dropoff_location || getDeliveryBoyById(dbId)?.current_location
-  });
-  
-  console.log(`✅ Delivery completed for ${taskId}. Delivery boy is now available at ${task?.dropoff_location}.`);
-  return { success: true, message: `Delivery completed for ${taskId}!` };
+  try {
+    const task = getTaskById(taskId);
+    const deliveryBoy = getDeliveryBoyById(dbId);
+    
+    // Update task first
+    updateTask(taskId, { status: 'COMPLETED' });
+    
+    // Update delivery boy
+    updateDeliveryBoy(dbId, {
+      is_available: true,
+      assigned_request_id: null,
+      current_location: task?.dropoff_location || deliveryBoy?.current_location
+    });
+    
+    console.log(`✅ Delivery completed for ${taskId}. Delivery boy is now available at ${task?.dropoff_location}.`);
+    return { success: true, message: `Delivery completed for ${taskId}!` };
+  } catch (error) {
+    console.error(`❌ Error completing delivery ${taskId}:`, error);
+    return { success: false, message: `Failed to complete delivery: ${error.message}` };
+  }
 };
 
 /**

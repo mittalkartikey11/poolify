@@ -12,6 +12,12 @@ const clientConfig = {
   'Dunzo': { bg: '#00d290', text: '#ffffff', icon: '📬' }
 };
 
+// Default client style fallback
+const defaultClientStyle = { bg: '#e9ecef', text: '#333', icon: '📦' };
+
+// Helper function to get client style
+const getClientStyle = (clientName) => clientConfig[clientName] || defaultClientStyle;
+
 function PoolifyDashboard() {
   const navigate = useNavigate();
   const { deliveryBoys, tasks, assignBestDeliveryBoy, resetData } = useData();
@@ -114,7 +120,7 @@ function PoolifyDashboard() {
           ) : (
             <div className="task-list">
               {pendingTasks.map(task => {
-                const clientStyle = clientConfig[task.client_name] || { bg: '#e9ecef', text: '#333', icon: '📦' };
+                const clientStyle = getClientStyle(task.client_name);
                 return (
                   <div key={task.request_id} className="task-card">
                     <div className="task-top">
@@ -169,7 +175,7 @@ function PoolifyDashboard() {
               </div>
               <div className="task-list">
                 {activeDeliveries.map(task => {
-                  const clientStyle = clientConfig[task.client_name] || { bg: '#e9ecef', text: '#333', icon: '📦' };
+                  const clientStyle = getClientStyle(task.client_name);
                   const assignedDb = deliveryBoys.find(db => db.db_id === task.assigned_to);
                   return (
                     <div key={task.request_id} className="task-card active">
