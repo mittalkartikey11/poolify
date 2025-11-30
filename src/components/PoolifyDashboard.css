@@ -7,11 +7,69 @@
   box-sizing: border-box;
 }
 
+/* Notification Styles */
+.notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 16px 24px;
+  border-radius: 12px;
+  font-weight: 600;
+  z-index: 1000;
+  animation: slideIn 0.3s ease;
+  max-width: 400px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+.notification.success {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.notification.error {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
 /* Header Styles */
 .dashboard-header {
   text-align: center;
   margin-bottom: 30px;
   color: white;
+}
+
+.header-nav {
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 15px;
+}
+
+.back-btn {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.back-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
 }
 
 .dashboard-header h1 {
@@ -69,19 +127,22 @@
 }
 
 .task-card {
-  background: #f8f9fa;
-  border-radius: 12px;
-  padding: 15px 20px;
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
-  border-left: 4px solid #ffc107;
+  border-left: 5px solid #ffc107;
   transition: transform 0.2s, box-shadow 0.2s;
+  position: relative;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
 .task-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
 }
 
 .task-card.pending {
@@ -90,42 +151,61 @@
 
 .task-card.assigned {
   border-left-color: #28a745;
-  background: #f0f9f2;
+  background: #f8fff9;
+}
+
+.request-id-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: #667eea;
+  color: white;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 700;
 }
 
 .task-info {
   flex: 1;
+  min-width: 200px;
 }
 
 .task-header {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
 }
 
-.request-id {
+.client-badge {
   font-weight: 700;
-  color: #667eea;
-  font-size: 1rem;
-}
-
-.client-name {
-  font-weight: 600;
-  color: #333;
-  background: #e9ecef;
-  padding: 3px 10px;
+  padding: 6px 14px;
   border-radius: 20px;
   font-size: 0.85rem;
 }
 
+.customer-name {
+  color: #555;
+  font-size: 0.9rem;
+}
+
 .status-badge {
-  background: #28a745;
-  color: white;
-  padding: 3px 10px;
+  padding: 5px 12px;
   border-radius: 20px;
   font-size: 0.75rem;
   font-weight: 600;
+}
+
+.status-badge.assigned {
+  background: #d4edda;
+  color: #155724;
+}
+
+.status-badge.in_progress {
+  background: #fff3cd;
+  color: #856404;
 }
 
 .task-details {
@@ -133,6 +213,7 @@
   align-items: center;
   gap: 10px;
   flex-wrap: wrap;
+  margin-bottom: 8px;
 }
 
 .location {
@@ -142,19 +223,46 @@
 }
 
 .location .label {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   color: #666;
 }
 
 .location .value {
-  font-weight: 500;
+  font-weight: 600;
   color: #333;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
 }
 
 .arrow {
   color: #667eea;
   font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.order-value {
+  margin-top: 8px;
+}
+
+.rupee {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #10b981;
+}
+
+.assigned-to-info {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed #e0e0e0;
+}
+
+.assigned-to-info .label {
+  color: #666;
+  font-size: 0.85rem;
+}
+
+.assigned-to-info .value {
+  font-weight: 600;
+  color: #667eea;
 }
 
 /* Assignment Button */
@@ -200,16 +308,22 @@
 }
 
 .delivery-boy-card {
-  background: #f8f9fa;
-  border-radius: 12px;
-  padding: 15px 20px;
-  border-left: 4px solid #28a745;
-  transition: transform 0.2s, box-shadow 0.2s;
+  background: white;
+  border-radius: 16px;
+  padding: 18px 20px;
+  border-left: 5px solid #28a745;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  text-decoration: none;
+  color: inherit;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
 .delivery-boy-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
 }
 
 .delivery-boy-card.available {
@@ -218,14 +332,29 @@
 
 .delivery-boy-card.busy {
   border-left-color: #dc3545;
-  background: #fff5f5;
+  background: #fff8f8;
+}
+
+.db-avatar {
+  font-size: 2rem;
+  background: #f0f0f0;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.db-info {
+  flex: 1;
 }
 
 .db-main-info {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .db-name {
@@ -237,8 +366,8 @@
 .availability-badge {
   padding: 5px 12px;
   border-radius: 20px;
-  font-size: 0.85rem;
-  font-weight: 500;
+  font-size: 0.8rem;
+  font-weight: 600;
 }
 
 .availability-badge.available {
@@ -253,15 +382,15 @@
 
 .db-details {
   display: flex;
-  flex-direction: column;
-  gap: 5px;
+  flex-wrap: wrap;
+  gap: 15px;
 }
 
 .db-location,
 .db-assignment {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 5px;
   font-size: 0.9rem;
 }
 
@@ -279,6 +408,17 @@
 .db-assignment .value {
   color: #667eea;
   font-weight: 600;
+}
+
+.view-arrow {
+  font-size: 1.5rem;
+  color: #667eea;
+  opacity: 0.5;
+  transition: opacity 0.2s;
+}
+
+.delivery-boy-card:hover .view-arrow {
+  opacity: 1;
 }
 
 /* Empty State */
